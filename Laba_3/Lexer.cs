@@ -40,7 +40,7 @@ namespace Laba_3
             _tokens.Add(token);
         }
 
-        private TokenNames? GetKeyWord(string word)
+        private static TokenNames? GetKeyWord(string word)
         {
             return word switch
             {

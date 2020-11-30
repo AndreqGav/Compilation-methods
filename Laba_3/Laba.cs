@@ -59,7 +59,7 @@ namespace Laba_3
 
         public void Start()
         {
-            var test = "for(a:=5; b>0; b:=1) do f<f;";
+            var test = "for(a=5abcf34; b>0; b:=1) do f<f;";
             // var test = "for(_testVariable:=0; 135abcdef123>0; BETA:=_test_test_test) do for(a:=5; b>0; b:=1) do 5 < 10; for(a:=5; b>0; b:=1) do f:= 141f4;";
             var lexer = new Lexer(test);
             var tokens = lexer.Start();
@@ -72,7 +72,7 @@ namespace Laba_3
             }
         }
 
-        private bool Syntax(List<Token> tokens)
+        private bool Syntax(IReadOnlyList<Token> tokens)
         {
             var pos = 0;
             var stack = new Stack<Element>();

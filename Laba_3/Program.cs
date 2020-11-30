@@ -1,10 +1,17 @@
-﻿using System;
+﻿/*
+10. Входной язык содержит операторы цикла for (…; …; …) do …, разделённые
+   символом ; (точка с запятой). Операторы цикла содержат идентификаторы,
+   знаки сравнения <, >, =, шестнадцатеричные числа, знак присваивания (:=).
+   Шестнадцатеричными числами считать последовательность цифр и символов a,
+   b, c, d, e, f, начинающуюся с цифры (например, 89, 45ac, 0abc).
+ */
+using System;
 
 namespace Laba_3
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
             var laba = new Laba();
             laba.Start();
