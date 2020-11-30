@@ -1,118 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Laba_3.Enums;
 
 namespace Laba_3
 {
-    public enum NTerminals
-    {
-        S,
-        A,
-        B,
-        C,
-        V,
-        T
-    }
-
-    public class Rule
-    {
-        private readonly List<Element> _rules;
-
-        public Rule(params Element[] rules)
-        {
-            _rules = rules.ToList();
-        }
-
-        public List<Element> SplitReverse()
-        {
-            var t = _rules.ToList();
-            t.Reverse();
-            return t;
-        }
-    }
-
-    public class Element
-    {
-        public TokenNames? Type;
-        public string value;
-        public NTerminals? NTerminal;
-
-        public List<Element> Children = new List<Element>();
-
-        public Element()
-        {
-        }
-
-        public Element(NTerminals nTerminals)
-        {
-            NTerminal = nTerminals;
-        }
-
-        public Element(TokenNames tokenName, string value = null)
-        {
-            Type = tokenName;
-            this.value = value;
-        }
-
-        public bool IsTerminal()
-        {
-            return NTerminal == null;
-        }
-
-        public void AddChild(Element element)
-        {
-            Children.Add(element);
-        }
-
-        public string Print(StringBuilder prefix = null, StringBuilder childPrefix = null)
-        {
-            // var buffer = $"\n{prefix}{NTerminal?.ToString() ?? Type.ToString()}";
-            var buffer = new StringBuilder();
-            buffer.AppendLine();
-            buffer.Append(prefix);
-            buffer.Append(NTerminal?.ToString() ?? Type.ToString());
-
-
-            var sb1 = new StringBuilder();
-            var sb2 = new StringBuilder();
-
-            for (var i = 0; i < Children.Count; i++)
-            {
-                var child = Children[i];
-                var isLast = Children.Count == 0 || Children.Count - 1 == i;
-                if (isLast)
-                {
-                    sb1.Append(childPrefix);
-                    sb1.Append("└──");
-
-                    sb2.Append(childPrefix);
-                    sb2.Append("   ");
-                }
-                else
-                {
-                    sb1.Append(childPrefix);
-                    sb1.Append("├──");
-
-                    sb2.Append(childPrefix);
-                    sb2.Append("│  ");
-                }
-
-                buffer.Append(child.Print(sb1, sb2));
-                sb1.Clear();
-                sb2.Clear();
-            }
-
-            if (Children.Count == 0 && value != null)
-            {
-                buffer.Append("──");
-                buffer.Append(value);
-            }
-
-            return buffer.ToString();
-        }
-    }
-
     internal class Laba
     {
         private readonly ILogger _logger;
@@ -121,60 +13,44 @@ namespace Laba_3
             new Dictionary<(NTerminals, TokenNames), Rule>()
             {
                 {
-                    (NTerminals.S, TokenNames.KEY_WORD_FOR),
-                    new Rule(
-                        new Element(TokenNames.KEY_WORD_FOR), new Element(TokenNames.DELIMITER, "("),
-                        new Element(NTerminals.A), new Element(TokenNames.DELIMITER, ";"),
-                        new Element(NTerminals.B), new Element(TokenNames.DELIMITER, ";"),
-                        new Element(NTerminals.A), new Element(TokenNames.DELIMITER, ")"),
-                        new Element(TokenNames.KEY_WORD_DO), new Element(NTerminals.T)
-                    )
+                    (NTerminals.S, TokenNames.KEY_WORD_FOR), Rule.All[0]
                 },
                 {
-                    (NTerminals.S, TokenNames.END),
-                    new Rule(new Element(TokenNames.END)) // new Element(TokenNames.END)
+                    (NTerminals.S, TokenNames.END), Rule.All[1]
                 },
                 {
-                    (NTerminals.A, TokenNames.IDENT),
-                    new Rule(new Element(TokenNames.IDENT), new Element(TokenNames.ASSIGN), new Element(NTerminals.V))
+                    (NTerminals.A, TokenNames.IDENT), Rule.All[2]
                 },
                 {
-                    (NTerminals.B, TokenNames.IDENT),
-                    new Rule(new Element(TokenNames.IDENT), new Element(TokenNames.OPERATION),
-                        new Element(NTerminals.V))
+                    (NTerminals.B, TokenNames.IDENT), Rule.All[3]
                 },
                 {
-                    (NTerminals.B, TokenNames.NUM),
-                    new Rule(new Element(TokenNames.NUM), new Element(TokenNames.OPERATION), new Element(NTerminals.V))
+                    (NTerminals.B, TokenNames.NUM), Rule.All[3]
                 },
                 {
-                    (NTerminals.V, TokenNames.IDENT), new Rule(new Element(TokenNames.IDENT))
+                    (NTerminals.V, TokenNames.IDENT), Rule.All[4]
                 },
                 {
-                    (NTerminals.V, TokenNames.NUM), new Rule(new Element(TokenNames.NUM))
+                    (NTerminals.V, TokenNames.NUM), Rule.All[5]
                 },
                 {
-                    (NTerminals.T, TokenNames.KEY_WORD_FOR), new Rule(new Element(NTerminals.S))
+                    (NTerminals.T, TokenNames.KEY_WORD_FOR), Rule.All[6]
                 },
                 {
-                    (NTerminals.T, TokenNames.IDENT),
-                    new Rule(new Element(TokenNames.IDENT), new Element(NTerminals.C), new Element(NTerminals.V),
-                        new Element(TokenNames.DELIMITER, ";"), new Element(NTerminals.S))
+                    (NTerminals.T, TokenNames.IDENT), Rule.All[7]
                 },
                 {
-                    (NTerminals.T, TokenNames.NUM),
-                    new Rule(new Element(TokenNames.NUM), new Element(TokenNames.OPERATION), new Element(NTerminals.V),
-                        new Element(TokenNames.DELIMITER, ";"), new Element(NTerminals.S))
+                    (NTerminals.T, TokenNames.NUM), Rule.All[8]
                 },
                 {
-                    (NTerminals.C, TokenNames.OPERATION), new Rule(new Element(TokenNames.OPERATION))
+                    (NTerminals.C, TokenNames.OPERATION), Rule.All[9]
                 },
                 {
-                    (NTerminals.C, TokenNames.ASSIGN), new Rule(new Element(TokenNames.ASSIGN))
+                    (NTerminals.C, TokenNames.ASSIGN), Rule.All[10]
                 }
             };
 
-        private Element root;
+        private Element _root;
 
         public Laba()
         {
@@ -183,14 +59,15 @@ namespace Laba_3
 
         public void Start()
         {
-            var lexer = new Lexer(
-                "for(a:=1;b>0;b:=1)do f:=f;");
+            var test = "for(a:=5; b>0; b:=1) do f<f;";
+            // var test = "for(_testVariable:=0; 135abcdef123>0; BETA:=_test_test_test) do for(a:=5; b>0; b:=1) do 5 < 10; for(a:=5; b>0; b:=1) do f:= 141f4;";
+            var lexer = new Lexer(test);
             var tokens = lexer.Start();
             var result = Syntax(tokens);
 
             if (result)
             {
-                var str = root.Print();
+                var str = _root.Print();
                 Console.Write(str);
             }
         }
@@ -202,7 +79,7 @@ namespace Laba_3
             stack.Push(new Element {Type = TokenNames.END, value = "$"});
             stack.Push(new Element {NTerminal = NTerminals.S});
 
-            root = stack.Peek();
+            _root = stack.Peek();
 
             while (stack.Any() && pos < tokens.Count)
             {
@@ -215,7 +92,8 @@ namespace Laba_3
                     {
                         pos++;
                         var pop = stack.Pop();
-                        _logger.LogSuccess("pop", "type:", token.Name.ToString(), "value:", token.Value);
+                        _logger.LogSuccess(
+                            $"Успешный парсинг токена: {{ Name = {token.Name} Value = {token.Value} }}. Ожидалось Type = {element.Type} {new string(element.value != null ? new string($"Value = {element.value}") : "")}");
 
                         if (token.Value != null)
                         {
@@ -224,16 +102,13 @@ namespace Laba_3
                     }
                     else
                     {
-                        _logger.LogError("Неверный терминал, ожидался типа:", element.Type?.ToString() ?? "NULL");
+                        _logger.LogError(
+                            $"Неверный токен: {{ Name = {token.Name} Value = {token.Value} }}. Ожидалось Type = {element.Type} {new string(element.value != null ? new string($"Value = {element.value}") : "")}");
                         return false;
                     }
                 }
                 else
                 {
-                    _logger.Log("finding rule for:");
-                    _logger.Log("{ type:", token.Name.ToString(), "value:", token.Value, "}");
-                    _logger.Log("{ type:", element.Type.ToString(), "", element.NTerminal?.ToString() ?? "NULL", "}");
-
                     if (_rules.TryGetValue((element.NTerminal!.Value, token.Name!), out var rule))
                     {
                         var pop = stack.Pop();
@@ -248,9 +123,9 @@ namespace Laba_3
                     }
                     else
                     {
-                        _logger.LogError("Не найдено правил для:");
-                        _logger.LogError("{ type:", token.Name.ToString(), "value:", token.Value, "}");
-                        _logger.LogError("{ type:", element.ToString(), "}");
+                        _logger.LogError(
+                            $"Не найдено правил для: токен = {{ Name = {token.Name} Value = {token.Value} }}. терминал = {element.NTerminal}");
+
                         return false;
                     }
                 }

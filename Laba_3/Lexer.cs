@@ -1,51 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using Laba_3.Enums;
 
 namespace Laba_3
 {
-    public enum States
-    {
-        H,
-        ID,
-        NM,
-        ASGN,
-        DLM,
-        ERR
-    }
-
-    public enum TokenNames
-    {
-        KEY_WORD_FOR,
-        KEY_WORD_DO,
-        IDENT,
-        NUM,
-        OPERATION,
-        DELIMITER,
-        ASSIGN,
-        END
-    }
-
     public struct Token
     {
         public TokenNames Name;
         public string Value;
     };
 
-    public class LexemeTable
-    {
-        public Token Token;
-        public LexemeTable Next;
-    }
-
     public class Lexer
     {
-        // private readonly string[] _keyWords = {"for", "do"};
-
-        // LexemeTable lt = null;
-        // LexemeTable lt_head = null;
-
         private readonly List<Token> _tokens = new List<Token>();
 
         private int _pos;
@@ -63,11 +30,9 @@ namespace Laba_3
             {
                 return _text[_pos++];
             }
-            else
-            {
-                _pos++;
-                return '$';
-            }
+
+            _pos++;
+            return '$';
         }
 
         private void AddToken(Token token)
@@ -148,7 +113,6 @@ namespace Laba_3
                             case '(':
                             case ')':
                             case ';':
-                                // sprintf(tok.token_value, "%c", c);
                                 AddToken(new Token {Name = TokenNames.DELIMITER, Value = c.ToString()});
 
                                 c = GetNext();
@@ -157,7 +121,6 @@ namespace Laba_3
                             case '<':
                             case '>':
                             case '=':
-                                // sprintf(tok.token_value, "%c", c); 
                                 AddToken(new Token {Name = TokenNames.OPERATION, Value = c.ToString()});
                                 c = GetNext();
                                 cs = States.H;
@@ -165,7 +128,7 @@ namespace Laba_3
                             default:
                                 errSymbol = c;
                                 // c = getNext();
-                                cs = States.ERR; // if((c == '(') || (c == ')') || (c == ';'))
+                                cs = States.ERR;
                                 break;
                         }
 

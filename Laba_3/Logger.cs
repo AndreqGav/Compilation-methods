@@ -13,21 +13,26 @@ namespace Laba_3
     {
         public void Log(params string[] value)
         {
-            Console.WriteLine(string.Join(' ', value));
+            Print(value);
         }
 
         public void LogError(params string[] value)
         {
             SetColor(ConsoleColor.DarkRed);
-            Log(value);
+            Print(value);
             Reset();
         }
 
         public void LogSuccess(params string[] value)
         {
             SetColor(ConsoleColor.DarkGreen);
-            Log(value);
+            Print(value);
             Reset();
+        }
+
+        public void Print(params string[] value)
+        {
+            Console.WriteLine(string.Join(' ', value));
         }
 
         private void SetColor(ConsoleColor color)
